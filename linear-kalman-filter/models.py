@@ -38,8 +38,8 @@ class MotionModel():
 
 class MeasurementModel():
     """
-    Measurement model of the vehicle. The measurement is of the position of
-    the vehicle [x, y]. It is defined using the matrices H and R.
+    Measurement model of the vehicle. The measurement is of the vehicle's 
+    position [x, y]. It is defined using the matrices H and R.
 
     :param H: State measurement matrix (must be 2x4)
     :param R: Measurement covariance matrix (must be 2x2)
