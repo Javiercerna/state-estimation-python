@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
+import math
 
-from utils import convert_gps_to_xy
+from utils import convert_gps_to_xy, apply_coordinate_rotation
 
 GROUND_TRUTH_FILENAME = './dataset/rtk_gps.txt'
 GROUND_TRUTH_LATS_COL = 4
@@ -49,7 +50,13 @@ with open(file=DEAD_RECKONING_FILENAME, mode='rb') as f:
         dead_reckoning_y.append(float(data[DEAD_RECKONING_Y_COL]))
         dead_reckoning_theta.append(float(data[DEAD_RECKONING_THETA_COL]))
 
+dead_reckoning_x, dead_reckoning_y = apply_coordinate_rotation(
+    dead_reckoning_x, dead_reckoning_y, rotation_angle=math.pi/3)
+
 plt.plot(ground_truth_x[0:1000], ground_truth_y[0:1000], 'b')
 plt.plot(gps_x[0:100], gps_y[0:100], 'r')
 plt.plot(dead_reckoning_x[0:5000], dead_reckoning_y[0:5000], 'g')
+plt.xlabel('x [m]')
+plt.ylabel('y [m]')
+plt.legend(['ground truth', 'measurements', 'odometry'])
 plt.show()
