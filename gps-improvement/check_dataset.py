@@ -61,6 +61,34 @@ def get_dead_reckoning_data():
     return dead_reckoning_x, dead_reckoning_y, dead_reckoning_theta
 
 
+def get_translational_speed():
+    MOTOR_ENCODER_FILENAME = './dataset/motor_encoder.txt'
+    TRANSLATIONAL_SPEED_COL = 2
+
+    with open(file=MOTOR_ENCODER_FILENAME, mode='rb') as f:
+        translational_speed = []
+
+        for line in f.readlines():
+            data = str(line).split(' ')
+            translational_speed.append(float(data[TRANSLATIONAL_SPEED_COL]))
+
+    return translational_speed
+
+
+def get_steering_angles():
+    STEERING_ANGLE_FILENAME = './dataset/steering_angle_encoder.txt'
+    STEERING_ANGLE_COL = 1
+
+    with open(file=STEERING_ANGLE_FILENAME, mode='rb') as f:
+        steering_angles = []
+
+        for line in f.readlines():
+            data = str(line).split(' ')
+            steering_angles.append(float(data[STEERING_ANGLE_COL]))
+
+    return steering_angles
+
+
 if __name__ == '__main__':
     ground_truth_x, ground_truth_y = get_groundtruth_data()
     gps_x, gps_y = get_gps_data()
