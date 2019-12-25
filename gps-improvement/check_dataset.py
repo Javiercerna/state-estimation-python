@@ -39,6 +39,12 @@ if __name__ == '__main__':
     gps = GPS()
     dead_reckoning = DeadReckoning()
 
+    # Synchronize from highest resolution to lowest
+    # i.e. dead_reckoning -> ground_truth -> gps
+    dead_reckoning.synchronize_data(ground_truth)
+    dead_reckoning.synchronize_data(gps)
+    ground_truth.synchronize_data(gps)
+
     plt.plot(ground_truth.positions_x[0:1000],
              ground_truth.positions_y[0:1000], 'b')
     plt.plot(gps.positions_x[0:100], gps.positions_y[0:100], 'r')

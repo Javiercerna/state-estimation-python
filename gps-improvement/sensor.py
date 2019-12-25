@@ -29,8 +29,9 @@ class Sensor(abc.ABC):
         return self._timestamps[self.timestamp_index]
 
     def synchronize_data(self, other_sensor):
-        self.timestamp_index = 0
-        other_sensor.timestamp_index = 0
+        original_timestamp_index = self.timestamp_index
+        other_sensor_original_timestamp_index = other_sensor.timestamp_index
+
         first_way_sensor_increment = 0
         first_way_other_sensor_increment = 0
 
@@ -44,8 +45,8 @@ class Sensor(abc.ABC):
 
         first_way_difference = self.get_timestamp() - other_sensor.get_timestamp()
 
-        self.timestamp_index = 0
-        other_sensor.timestamp_index = 0
+        self.timestamp_index = original_timestamp_index
+        other_sensor.timestamp_index = other_sensor_original_timestamp_index
         second_way_sensor_increment = 0
         second_way_other_sensor_increment = 0
 
@@ -59,8 +60,8 @@ class Sensor(abc.ABC):
 
         second_way_difference = self.get_timestamp() - other_sensor.get_timestamp()
 
-        self.timestamp_index = 0
-        other_sensor.timestamp_index = 0
+        self.timestamp_index = original_timestamp_index
+        other_sensor.timestamp_index = other_sensor_original_timestamp_index
 
         if abs(first_way_difference) <= abs(second_way_difference):
             self.timestamp_index += first_way_sensor_increment
