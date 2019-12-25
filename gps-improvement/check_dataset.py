@@ -1,64 +1,9 @@
 import matplotlib.pyplot as plt
 import math
 
-from utils import convert_gps_to_xy, apply_coordinate_rotation
-
-
-def get_groundtruth_data():
-    GROUND_TRUTH_FILENAME = './dataset/rtk_gps.txt'
-    GROUND_TRUTH_LATS_COL = 4
-    GROUND_TRUTH_LONS_COL = 5
-
-    with open(file=GROUND_TRUTH_FILENAME, mode='rb') as f:
-        ground_truth_lats = []
-        ground_truth_lons = []
-
-        for line in f.readlines():
-            data = str(line).split(' ')
-            ground_truth_lats.append(float(data[GROUND_TRUTH_LATS_COL]))
-            ground_truth_lons.append(float(data[GROUND_TRUTH_LONS_COL]))
-
-    return convert_gps_to_xy(ground_truth_lats, ground_truth_lons)
-
-
-def get_gps_data():
-    GPS_FILENAME = './dataset/ublox_gps.txt'
-    GPS_LATS_COL = 4
-    GPS_LONS_COL = 5
-
-    with open(file=GPS_FILENAME, mode='rb') as f:
-        gps_lats = []
-        gps_lons = []
-
-        for line in f.readlines():
-            data = str(line).split(' ')
-            gps_lats.append(float(data[GPS_LATS_COL]))
-            gps_lons.append(float(data[GPS_LONS_COL]))
-
-        return convert_gps_to_xy(gps_lats, gps_lons)
-
-
-def get_dead_reckoning_data():
-    DEAD_RECKONING_FILENAME = './dataset/dead_reckoning.txt'
-    DEAD_RECKONING_X_COL = 1
-    DEAD_RECKONING_Y_COL = 2
-    DEAD_RECKONING_THETA_COL = 3
-
-    with open(file=DEAD_RECKONING_FILENAME, mode='rb') as f:
-        dead_reckoning_x = []
-        dead_reckoning_y = []
-        dead_reckoning_theta = []
-
-        for line in f.readlines():
-            data = [val.strip('\\n\'') for val in str(line).split(' ')]
-            dead_reckoning_x.append(float(data[DEAD_RECKONING_X_COL]))
-            dead_reckoning_y.append(float(data[DEAD_RECKONING_Y_COL]))
-            dead_reckoning_theta.append(float(data[DEAD_RECKONING_THETA_COL]))
-
-    dead_reckoning_x, dead_reckoning_y = apply_coordinate_rotation(
-        dead_reckoning_x, dead_reckoning_y, rotation_angle=math.pi / 3)
-
-    return dead_reckoning_x, dead_reckoning_y, dead_reckoning_theta
+from dead_reckoning import DeadReckoning
+from gps import GPS
+from ground_truth import GroundTruth
 
 
 def get_translational_speed():
@@ -90,13 +35,17 @@ def get_steering_angles():
 
 
 if __name__ == '__main__':
-    ground_truth_x, ground_truth_y = get_groundtruth_data()
-    gps_x, gps_y = get_gps_data()
-    dead_reckoning_x, dead_reckoning_y, dead_reckoning_theta = get_dead_reckoning_data()
+    ground_truth = GroundTruth()
+    gps = GPS()
+    dead_reckoning = DeadReckoning()
 
-    plt.plot(ground_truth_x[0:1000], ground_truth_y[0:1000], 'b')
-    plt.plot(gps_x[0:100], gps_y[0:100], 'r')
-    plt.plot(dead_reckoning_x[0:5000], dead_reckoning_y[0:5000], 'g')
+    plt.plot(ground_truth.positions_x[0:1000],
+             ground_truth.positions_y[0:1000], 'b')
+    plt.plot(gps.positions_x[0:100], gps.positions_y[0:100], 'r')
+    plt.plot(
+        dead_reckoning.positions_x[0: 5000],
+        dead_reckoning.positions_y[0: 5000],
+        'g')
     plt.xlabel('x [m]')
     plt.ylabel('y [m]')
     plt.legend(['ground truth', 'measurements', 'odometry'])
