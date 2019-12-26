@@ -20,7 +20,7 @@ class DeadReckoning(Sensor):
         super().__init__(filename=filename)
 
         self.positions_x, self.positions_y = apply_coordinate_rotation(
-            self.positions_x, self.positions_y, rotation_angle=math.pi / 3)
+            self.positions_x, self.positions_y, rotation_angle=1.15*math.pi/3)
 
     def _append_data(self, data):
         self._timestamps.append(float(data[DEAD_RECKONING_TIMESTAMP_COL]))

@@ -38,10 +38,14 @@ def _calculate_dx_dy_from_gps(lat1, lon1, lat2, lon2):
     :param lons: List of lon coordinates (WGS84)
     :return: displacements (dx, dy) [m]
     """
-    EARTH_RADIUS_M = 6371
-    FACTOR = 900
-    x1, y1 = (EARTH_RADIUS_M * FACTOR * lon1, EARTH_RADIUS_M * FACTOR * lat1)
-    x2, y2 = (EARTH_RADIUS_M * FACTOR * lon2, EARTH_RADIUS_M * FACTOR * lat2)
+    EARTH_RADIUS_M = 6371000
+    # Center point: 45.76020235, 3.11006703333
+    center_lat = 0.79866619738
+
+    x1, y1 = (EARTH_RADIUS_M * math.cos(center_lat)
+              * lon1, EARTH_RADIUS_M * lat1)
+    x2, y2 = (EARTH_RADIUS_M * math.cos(center_lat)
+              * lon2, EARTH_RADIUS_M * lat2)
 
     return (x2 - x1, y2 - y1)
 

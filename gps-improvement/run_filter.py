@@ -35,7 +35,7 @@ steering_angle_encoder.synchronize_data(state)
 # Initial state
 x0 = np.array([state.positions_x[state.timestamp_index],
                state.positions_y[state.timestamp_index],
-               -math.pi/3])
+               -1.15*math.pi/3])
 P0 = 0 * np.eye(3)
 start_timestamp = motor_encoder.get_timestamp()
 
@@ -61,6 +61,7 @@ end_timestamp = motor_encoder.get_timestamp()
 ground_truth_data = ground_truth.get_data_until_timestamp(end_timestamp)
 measurements = GPS()
 measurements_data = measurements.get_data_until_timestamp(end_timestamp)
+state_data = state.get_data_until_timestamp(end_timestamp)
 
 ground_truth_x = [position[0] for position in ground_truth_data]
 ground_truth_y = [position[1] for position in ground_truth_data]
@@ -68,9 +69,13 @@ ground_truth_y = [position[1] for position in ground_truth_data]
 measurements_x = [position[0] for position in measurements_data]
 measurements_y = [position[1] for position in measurements_data]
 
+state_x = [position[0] for position in state_data]
+state_y = [position[1] for position in state_data]
+
 plt.plot(ground_truth_x, ground_truth_y, 'b')
 plt.plot(estimated_state[:, 0], estimated_state[:, 1], 'g')
 plt.plot(measurements_x, measurements_y, 'r')
+#plt.plot(state_x, state_y, 'k')
 
 plt.xlabel('x [m]')
 plt.ylabel('y [m]')
