@@ -49,7 +49,7 @@ class ExtendedKalmanFilter():
 
 
 def create_model_parameters(
-        sigma_x=0.5, sigma_y=0.5, sigma_theta=0.5, lamda=100):
+        sigma_x=0.3, sigma_y=0.3, sigma_theta=0.3, lamda=50):
     # Motion model parameters
     Q = np.block([[sigma_x ** 2, 0, 0],
                   [0, sigma_y ** 2, 0],
