@@ -17,8 +17,6 @@ H, Q, R = create_model_parameters()
 ground_truth = GroundTruth()
 state = DeadReckoning()
 measurements = GPS()
-measurements.positions_x, measurements.positions_y = apply_coordinate_rotation(
-    measurements.positions_x, measurements.positions_y, rotation_angle=-math.pi / 3)
 motor_encoder = MotorEncoder()
 steering_angle_encoder = SteeringAngleEncoder()
 
@@ -37,9 +35,11 @@ steering_angle_encoder.synchronize_data(state)
 # Initial state
 x0 = np.array([state.positions_x[state.timestamp_index],
                state.positions_y[state.timestamp_index],
-               state.positions_theta[state.timestamp_index]])
+               -math.pi/3])
 P0 = 0 * np.eye(3)
 start_timestamp = motor_encoder.get_timestamp()
+
+print('Initial state:', x0)
 
 kalman_filter = ExtendedKalmanFilter(
     dt=dt, wheelbase=wheelbase, Q=Q, H=H, R=R, x_0=x0, P_0=P0)
@@ -64,13 +64,9 @@ measurements_data = measurements.get_data_until_timestamp(end_timestamp)
 
 ground_truth_x = [position[0] for position in ground_truth_data]
 ground_truth_y = [position[1] for position in ground_truth_data]
-ground_truth_x, ground_truth_y = apply_coordinate_rotation(
-    ground_truth_x, ground_truth_y, rotation_angle=-math.pi / 3)
 
 measurements_x = [position[0] for position in measurements_data]
 measurements_y = [position[1] for position in measurements_data]
-measurements_x, measurements_y = apply_coordinate_rotation(
-    measurements_x, measurements_y, rotation_angle=-math.pi / 3)
 
 plt.plot(ground_truth_x, ground_truth_y, 'b')
 plt.plot(estimated_state[:, 0], estimated_state[:, 1], 'g')
