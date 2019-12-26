@@ -23,16 +23,21 @@ ground_truth.synchronize_data(gps)
 motor_encoder.synchronize_data(dead_reckoning)
 steering_angle_encoder.synchronize_data(dead_reckoning)
 
-ground_truth_x = ground_truth.positions_x[ground_truth.timestamp_index:ground_truth.timestamp_index+1000]
-ground_truth_y = ground_truth.positions_y[ground_truth.timestamp_index:ground_truth.timestamp_index+1000]
+start_timestamp = dead_reckoning.get_timestamp()
+end_timestamp = start_timestamp + 100e6
 
-gps_x = gps.positions_x[gps.timestamp_index:gps.timestamp_index+100]
-gps_y = gps.positions_y[gps.timestamp_index:gps.timestamp_index+100]
+dead_reckoning_data = dead_reckoning.get_data_until_timestamp(end_timestamp)
+ground_truth_data = ground_truth.get_data_until_timestamp(end_timestamp)
+gps_data = gps.get_data_until_timestamp(end_timestamp)
 
-dead_reckoning_x = dead_reckoning.positions_x[
-    dead_reckoning.timestamp_index:dead_reckoning.timestamp_index+5000]
-dead_reckoning_y = dead_reckoning.positions_y[
-    dead_reckoning.timestamp_index:dead_reckoning.timestamp_index+5000]
+dead_reckoning_x = [position[0] for position in dead_reckoning_data]
+dead_reckoning_y = [position[1] for position in dead_reckoning_data]
+
+ground_truth_x = [position[0] for position in ground_truth_data]
+ground_truth_y = [position[1] for position in ground_truth_data]
+
+gps_x = [position[0] for position in gps_data]
+gps_y = [position[1] for position in gps_data]
 
 plt.plot(ground_truth_x, ground_truth_y, 'b')
 plt.plot(gps_x, gps_y, 'r')

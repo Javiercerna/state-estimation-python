@@ -28,6 +28,18 @@ class Sensor(abc.ABC):
     def get_timestamp(self):
         return self._timestamps[self.timestamp_index]
 
+    @abc.abstractmethod
+    def get_next_data(self):
+        pass
+
+    def get_data_until_timestamp(self, timestamp):
+        data = []
+
+        while self.get_timestamp() <= timestamp:
+            data.append(self.get_next_data())
+
+        return data
+
     def synchronize_data(self, other_sensor):
         original_timestamp_index = self.timestamp_index
         other_sensor_original_timestamp_index = other_sensor.timestamp_index

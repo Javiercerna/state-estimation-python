@@ -23,3 +23,11 @@ class GroundTruth(Sensor):
         self._timestamps.append(float(data[GROUND_TRUTH_TIMESTAMP_COL]))
         self.lats.append(float(data[GROUND_TRUTH_LATS_COL]))
         self.lons.append(float(data[GROUND_TRUTH_LONS_COL]))
+
+    def get_next_data(self):
+        x = self.positions_x[self.timestamp_index]
+        y = self.positions_y[self.timestamp_index]
+
+        self.timestamp_index += 1
+
+        return x, y

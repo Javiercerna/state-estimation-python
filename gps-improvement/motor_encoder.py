@@ -14,3 +14,10 @@ class MotorEncoder(Sensor):
     def _append_data(self, data):
         self._timestamps.append(float(data[MOTOR_ENCODER_TIMESTAMP_COL]))
         self.translational_speeds.append(float(data[TRANSLATIONAL_SPEED_COL]))
+
+    def get_next_data(self):
+        translational_speed = self.translational_speeds[self.timestamp_index]
+
+        self.timestamp_index += 1
+
+        return translational_speed
