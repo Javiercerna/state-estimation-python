@@ -5,11 +5,12 @@ import math
 from dead_reckoning import DeadReckoning
 from gps import GPS
 from ground_truth import GroundTruth
+from gyrometer import Gyrometer
 from motor_encoder import MotorEncoder
 from steering_angle_encoder import SteeringAngleEncoder
 
 from kalman_filter import ExtendedKalmanFilter, create_model_parameters
-from utils import apply_coordinate_rotation
+from utils import apply_coordinate_rotation, normalize_angle
 
 np.random.seed(0)
 H, Q, R = create_model_parameters()
@@ -19,6 +20,7 @@ state = DeadReckoning()
 measurements = GPS()
 motor_encoder = MotorEncoder()
 steering_angle_encoder = SteeringAngleEncoder()
+gyrometer = Gyrometer()
 
 simulation_time = 5000
 dt = 0.02
@@ -31,6 +33,7 @@ ground_truth.synchronize_data(measurements)
 
 motor_encoder.synchronize_data(state)
 steering_angle_encoder.synchronize_data(state)
+gyrometer.synchronize_data(state)
 
 # Initial state
 x0 = np.array([state.positions_x[state.timestamp_index],
@@ -46,10 +49,15 @@ kalman_filter = ExtendedKalmanFilter(
 estimated_state = np.zeros((simulation_time, 3))
 estimation_covariance = np.zeros((simulation_time, 3, 3))
 
+gyrometer_angles = [x0[2]]
 for k in range(simulation_time):
     kalman_filter.predict(
         motor_encoder.get_next_data(),
         steering_angle_encoder.get_next_data())
+
+    gyrometer_angle = gyrometer_angles[k] + dt * gyrometer.get_next_data()
+    gyrometer_angle = normalize_angle(gyrometer_angle)
+    gyrometer_angles.append(gyrometer_angle)
 
     if measurements.get_timestamp() <= motor_encoder.get_timestamp():
         kalman_filter.update(measurements.get_next_data())
@@ -77,18 +85,19 @@ plt.subplot(1, 2, 1)
 plt.plot(ground_truth_x, ground_truth_y, 'b')
 plt.plot(estimated_state[:, 0], estimated_state[:, 1], 'g')
 plt.plot(measurements_x, measurements_y, 'r')
-#plt.plot(state_x, state_y, 'k')
+# plt.plot(state_x, state_y, 'k')
 plt.title('X-Y plots')
 plt.xlabel('x [m]')
 plt.ylabel('y [m]')
-plt.legend(['ground_truth', 'estimated_state', 'measurements'])
+plt.legend(['ground_truth', 'estimated_state', 'GPS measurements'])
 
 # Angle plots
 plt.subplot(1, 2, 2)
 plt.plot(estimated_state[:, 2], 'g')
+plt.plot(gyrometer_angles, 'r')
 plt.title('Angle plots')
 plt.xlabel('timestamps (us)')
 plt.ylabel('theta [rad]')
-plt.legend(['estimated_state'])
+plt.legend(['estimated_state', 'gyrometer measurements'])
 
 plt.show()
