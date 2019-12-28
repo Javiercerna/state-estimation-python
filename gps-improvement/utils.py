@@ -64,3 +64,7 @@ def apply_coordinate_rotation(list_x, list_y, rotation_angle):
         list_rotated_y.append(r*math.sin(original_angle - rotation_angle))
 
     return list_rotated_x, list_rotated_y
+
+
+def normalize_angle(angle):
+    return (angle + math.pi) % (2 * math.pi) - math.pi

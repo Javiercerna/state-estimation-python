@@ -8,6 +8,8 @@ from motor_encoder import MotorEncoder
 from steering_angle_encoder import SteeringAngleEncoder
 from gyrometer import Gyrometer
 
+from utils import normalize_angle
+
 ground_truth = GroundTruth()
 gps = GPS()
 dead_reckoning = DeadReckoning()
@@ -48,7 +50,8 @@ gps_y = [position[1] for position in gps_data]
 gyrometer_angle = [0]
 for ind in range(1, len(gyrometer_data)):
     gyro_measurement = gyrometer_data[ind]
-    gyrometer_angle.append(gyrometer_angle[ind-1] + 0.02 * gyro_measurement)
+    angle = normalize_angle(gyrometer_angle[ind-1] + 0.02 * gyro_measurement)
+    gyrometer_angle.append(angle)
 
 # X-Y plots
 plt.subplot(1, 2, 1)
@@ -66,7 +69,7 @@ plt.plot(dead_reckoning_theta, 'g')
 plt.plot(gyrometer_angle, 'r')
 plt.title('Angle plots')
 plt.xlabel('timestamps (us)')
-plt.ylabel('theta [deg]')
+plt.ylabel('theta [rad]')
 plt.legend(['Odometry', 'Gyroscope measurements'])
 
 plt.show()

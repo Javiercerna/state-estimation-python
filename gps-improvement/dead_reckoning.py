@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import math
 
 from sensor import Sensor
-from utils import apply_coordinate_rotation
+from utils import apply_coordinate_rotation, normalize_angle
 
 DEAD_RECKONING_FILENAME = './dataset/dead_reckoning.txt'
 DEAD_RECKONING_TIMESTAMP_COL = 0
@@ -26,7 +26,8 @@ class DeadReckoning(Sensor):
         self._timestamps.append(float(data[DEAD_RECKONING_TIMESTAMP_COL]))
         self.positions_x.append(float(data[DEAD_RECKONING_X_COL]))
         self.positions_y.append(float(data[DEAD_RECKONING_Y_COL]))
-        self.positions_theta.append(float(data[DEAD_RECKONING_THETA_COL]))
+        angle = normalize_angle(float(data[DEAD_RECKONING_THETA_COL]))
+        self.positions_theta.append(angle)
 
     def get_next_data(self):
         x = self.positions_x[self.timestamp_index]
