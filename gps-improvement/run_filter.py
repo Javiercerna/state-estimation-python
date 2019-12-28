@@ -11,6 +11,8 @@ from steering_angle_encoder import SteeringAngleEncoder
 
 from kalman_filter import ExtendedKalmanFilter, create_model_parameters
 from utils import apply_coordinate_rotation, normalize_angle
+from filter_statistics import calculate_error_between_ground_truth_and_estimate, \
+    calculate_error_between_ground_truth_and_odometry
 
 np.random.seed(0)
 H, Q, R = create_model_parameters()
@@ -41,8 +43,6 @@ x0 = np.array([state.positions_x[state.timestamp_index],
                -1.15*math.pi/3])
 P0 = 0 * np.eye(3)
 start_timestamp = motor_encoder.get_timestamp()
-
-print('Initial state:', x0)
 
 kalman_filter = ExtendedKalmanFilter(
     dt=dt, wheelbase=wheelbase, Q=Q, H=H, R=R, x_0=x0, P_0=P0)
@@ -80,16 +80,22 @@ measurements_y = [position[1] for position in measurements_data]
 state_x = [position[0] for position in state_data]
 state_y = [position[1] for position in state_data]
 
+error_x, error_y = calculate_error_between_ground_truth_and_estimate(
+    estimated_state, start_timestamp, end_timestamp)
+
+error_odometry_x, error_odometry_y = calculate_error_between_ground_truth_and_odometry(
+    start_timestamp, end_timestamp)
+
 # X-Y plots
 plt.subplot(1, 2, 1)
 plt.plot(ground_truth_x, ground_truth_y, 'b')
 plt.plot(estimated_state[:, 0], estimated_state[:, 1], 'g')
 plt.plot(measurements_x, measurements_y, 'r')
-# plt.plot(state_x, state_y, 'k')
+plt.plot(state_x, state_y, 'k')
 plt.title('X-Y plots')
 plt.xlabel('x [m]')
 plt.ylabel('y [m]')
-plt.legend(['ground_truth', 'estimated_state', 'GPS measurements'])
+plt.legend(['ground_truth', 'estimated_state', 'GPS measurements', 'odometry'])
 
 # Angle plots
 plt.subplot(1, 2, 2)
@@ -100,4 +106,20 @@ plt.xlabel('timestamps (us)')
 plt.ylabel('theta [rad]')
 plt.legend(['estimated_state', 'gyrometer measurements'])
 
+# Error plots
+plt.figure()
+plt.subplot(2, 1, 1)
+plt.plot(error_x, 'g')
+plt.plot(error_odometry_x, 'k')
+plt.title('Errors from ground truth - x axis')
+plt.legend(['estimate errors', 'odometry errors'])
+plt.xlabel('timestamps (us)')
+plt.ylabel('error [m]')
+plt.subplot(2, 1, 2)
+plt.plot(error_y, 'g')
+plt.plot(error_odometry_y, 'k')
+plt.title('Errors from ground truth - y axis')
+plt.legend(['estimate errors', 'odometry errors'])
+plt.xlabel('timestamps (us)')
+plt.ylabel('error [m]')
 plt.show()

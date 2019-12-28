@@ -32,6 +32,15 @@ class Sensor(abc.ABC):
     def get_next_data(self):
         pass
 
+    def get_data_closest_to_timestamp(self, timestamp):
+        if self.get_timestamp() > timestamp:
+            return None
+
+        while self.get_timestamp() <= timestamp:
+            data = self.get_next_data()
+
+        return data
+
     def get_data_until_timestamp(self, timestamp):
         data = []
 
