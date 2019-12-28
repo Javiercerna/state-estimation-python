@@ -72,12 +72,23 @@ measurements_y = [position[1] for position in measurements_data]
 state_x = [position[0] for position in state_data]
 state_y = [position[1] for position in state_data]
 
+# X-Y plots
+plt.subplot(1, 2, 1)
 plt.plot(ground_truth_x, ground_truth_y, 'b')
 plt.plot(estimated_state[:, 0], estimated_state[:, 1], 'g')
 plt.plot(measurements_x, measurements_y, 'r')
 #plt.plot(state_x, state_y, 'k')
-
+plt.title('X-Y plots')
 plt.xlabel('x [m]')
 plt.ylabel('y [m]')
 plt.legend(['ground_truth', 'estimated_state', 'measurements'])
+
+# Angle plots
+plt.subplot(1, 2, 2)
+plt.plot(estimated_state[:, 2], 'g')
+plt.title('Angle plots')
+plt.xlabel('timestamps (us)')
+plt.ylabel('theta [rad]')
+plt.legend(['estimated_state'])
+
 plt.show()

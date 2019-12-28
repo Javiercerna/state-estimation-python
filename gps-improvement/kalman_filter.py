@@ -9,6 +9,8 @@ References:
 import numpy as np
 import math
 
+from utils import normalize_angle
+
 
 class ExtendedKalmanFilter():
     def __init__(self, dt, wheelbase, Q, H, R, x_0, P_0):
@@ -31,6 +33,7 @@ class ExtendedKalmanFilter():
         G = self._compute_jacobian(v_transl)
 
         self.estimated_state = self.estimated_state + u
+        self.estimated_state[2] = normalize_angle(self.estimated_state[2])
         self.estimation_covariance = G @ self.estimation_covariance @ G.transpose() + self.Q
 
     def _compute_jacobian(self, v_transl):
