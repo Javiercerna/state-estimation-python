@@ -43,8 +43,14 @@ class ExtendedKalmanFilter():
             [0, 0, 1]])
 
     def update(self, measurement):
+        GPS_MIN_POSITION_DIFFERENCE_M = 10
         S = self.H @ self.estimation_covariance @ self.H.transpose() + self.R
         V = measurement - self.H @ self.estimated_state
+
+        # Use GPS measurements only when there is enough difference
+        if math.sqrt(V[0] ** 2 + V[1] ** 2) < GPS_MIN_POSITION_DIFFERENCE_M:
+            return
+
         K = self.estimation_covariance @ self.H.transpose() @ np.linalg.inv(S)
 
         self.estimated_state = self.estimated_state + K @ V
@@ -52,7 +58,7 @@ class ExtendedKalmanFilter():
 
 
 def create_model_parameters(
-        sigma_x=0.07, sigma_y=0.07, sigma_theta=0, lamda=40):
+        sigma_x=0.05, sigma_y=0.05, sigma_theta=0, lamda=20):
     # Motion model parameters
     Q = np.block([[sigma_x ** 2, 0, 0],
                   [0, sigma_y ** 2, 0],
