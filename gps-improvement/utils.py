@@ -51,6 +51,15 @@ def _calculate_dx_dy_from_gps(lat1, lon1, lat2, lon2):
 
 
 def apply_coordinate_rotation(list_x, list_y, rotation_angle):
+    """
+    Applies a coordinate rotation of two lists of (x,y) values around the z-axis,
+    depending on the value of the rotation angle.
+
+    :param list_x: List of x values [m]
+    :param list_y: List of y values [m]
+    :param rotation_angle: Angle to rotate around z-axis [rad/s]
+    :return: Two lists of rotated (rotated_x, rotated_y).
+    """
     list_rotated_x = []
     list_rotated_y = []
 
@@ -67,4 +76,10 @@ def apply_coordinate_rotation(list_x, list_y, rotation_angle):
 
 
 def normalize_angle(angle):
+    """
+    Keeps the angle between -pi and pi.
+
+    :param angle: input angle [rad]
+    :return: Normalized angle between -pi and pi [rad]
+    """
     return (angle + math.pi) % (2 * math.pi) - math.pi
