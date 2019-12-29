@@ -1,12 +1,12 @@
 import matplotlib.pyplot as plt
 import math
 
-from dead_reckoning import DeadReckoning
-from gps import GPS
-from ground_truth import GroundTruth
-from motor_encoder import MotorEncoder
-from steering_angle_encoder import SteeringAngleEncoder
-from gyrometer import Gyrometer
+from sensors.dead_reckoning import DeadReckoning
+from sensors.gps import GPS
+from sensors.ground_truth import GroundTruth
+from sensors.motor_encoder import MotorEncoder
+from sensors.steering_angle_encoder import SteeringAngleEncoder
+from sensors.gyrometer import Gyrometer
 
 from utils import normalize_angle
 

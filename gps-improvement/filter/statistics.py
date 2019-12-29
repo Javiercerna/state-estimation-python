@@ -1,5 +1,5 @@
-from dead_reckoning import DeadReckoning
-from ground_truth import GroundTruth
+from sensors.dead_reckoning import DeadReckoning
+from sensors.ground_truth import GroundTruth
 
 
 def calculate_error_between_ground_truth_and_estimate(

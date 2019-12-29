@@ -1,10 +1,10 @@
 import matplotlib.pyplot as plt
 import math
 
-from sensor import Sensor
+from sensors.sensor import Sensor
 from utils import apply_coordinate_rotation, normalize_angle
 
-DEAD_RECKONING_FILENAME = './dataset/dead_reckoning.txt'
+DEAD_RECKONING_FILENAME = 'dataset/dead_reckoning.txt'
 DEAD_RECKONING_TIMESTAMP_COL = 0
 DEAD_RECKONING_X_COL = 1
 DEAD_RECKONING_Y_COL = 2

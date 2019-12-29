@@ -1,6 +1,6 @@
-from sensor import Sensor
+from sensors.sensor import Sensor
 
-GYROMETER_FILENAME = './dataset/gyrometer.txt'
+GYROMETER_FILENAME = 'dataset/gyrometer.txt'
 GYROMETER_TIMESTAMP_COL = 0
 GYROMETER_ANGULAR_SPEED_COL = 1
 

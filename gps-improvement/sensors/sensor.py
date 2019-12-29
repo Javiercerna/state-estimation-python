@@ -1,9 +1,11 @@
 import abc
+import os.path as path
 
 
 class Sensor(abc.ABC):
     def __init__(self, filename):
-        self.filename = filename
+        self.filename = path.abspath(
+            path.join(path.dirname(__file__), '..', filename))
         self._timestamps = []
         self.timestamp_index = 0
 

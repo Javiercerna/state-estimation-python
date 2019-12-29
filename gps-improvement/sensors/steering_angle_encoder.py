@@ -1,6 +1,6 @@
-from sensor import Sensor
+from sensors.sensor import Sensor
 
-STEERING_ANGLE_FILENAME = './dataset/steering_angle_encoder.txt'
+STEERING_ANGLE_FILENAME = 'dataset/steering_angle_encoder.txt'
 STEERING_ANGLE_TIMESTAMP_COL = 0
 STEERING_ANGLE_COL = 1
 

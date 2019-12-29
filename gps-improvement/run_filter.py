@@ -2,16 +2,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 
-from dead_reckoning import DeadReckoning
-from gps import GPS
-from ground_truth import GroundTruth
-from gyrometer import Gyrometer
-from motor_encoder import MotorEncoder
-from steering_angle_encoder import SteeringAngleEncoder
+from sensors.dead_reckoning import DeadReckoning
+from sensors.gps import GPS
+from sensors.ground_truth import GroundTruth
+from sensors.gyrometer import Gyrometer
+from sensors.motor_encoder import MotorEncoder
+from sensors.steering_angle_encoder import SteeringAngleEncoder
 
-from kalman_filter import ExtendedKalmanFilter, create_model_parameters
+from filter.kalman_filter import ExtendedKalmanFilter, create_model_parameters
 from utils import apply_coordinate_rotation, normalize_angle
-from filter_statistics import calculate_error_between_ground_truth_and_estimate, \
+from filter.statistics import calculate_error_between_ground_truth_and_estimate, \
     calculate_error_between_ground_truth_and_odometry
 
 np.random.seed(0)

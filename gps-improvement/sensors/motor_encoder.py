@@ -1,6 +1,6 @@
-from sensor import Sensor
+from sensors.sensor import Sensor
 
-MOTOR_ENCODER_FILENAME = './dataset/motor_encoder.txt'
+MOTOR_ENCODER_FILENAME = 'dataset/motor_encoder.txt'
 MOTOR_ENCODER_TIMESTAMP_COL = 0
 TRANSLATIONAL_SPEED_COL = 2
 
