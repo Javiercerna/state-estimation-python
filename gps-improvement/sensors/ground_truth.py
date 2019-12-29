@@ -19,12 +19,12 @@ class GroundTruth(Sensor):
         self.positions_x, self.positions_y = convert_gps_to_xy(
             self.lats, self.lons)
 
-    def _append_data(self, data):
-        self._timestamps.append(float(data[GROUND_TRUTH_TIMESTAMP_COL]))
-        self.lats.append(float(data[GROUND_TRUTH_LATS_COL]))
-        self.lons.append(float(data[GROUND_TRUTH_LONS_COL]))
+    def _append_measurement(self, measurement):
+        self._timestamps.append(float(measurement[GROUND_TRUTH_TIMESTAMP_COL]))
+        self.lats.append(float(measurement[GROUND_TRUTH_LATS_COL]))
+        self.lons.append(float(measurement[GROUND_TRUTH_LONS_COL]))
 
-    def get_next_data(self):
+    def get_next_measurement(self):
         x = self.positions_x[self.timestamp_index]
         y = self.positions_y[self.timestamp_index]
 

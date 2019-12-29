@@ -52,24 +52,27 @@ estimation_covariance = np.zeros((simulation_time, 3, 3))
 gyrometer_angles = [x0[2]]
 for k in range(simulation_time):
     kalman_filter.predict(
-        motor_encoder.get_next_data(),
-        steering_angle_encoder.get_next_data())
+        motor_encoder.get_next_measurement(),
+        steering_angle_encoder.get_next_measurement())
 
-    gyrometer_angle = gyrometer_angles[k] + dt * gyrometer.get_next_data()
+    gyrometer_angle = gyrometer_angles[k] + \
+        dt * gyrometer.get_next_measurement()
     gyrometer_angle = normalize_angle(gyrometer_angle)
     gyrometer_angles.append(gyrometer_angle)
 
     if measurements.get_timestamp() <= motor_encoder.get_timestamp():
-        kalman_filter.update(measurements.get_next_data())
+        kalman_filter.update(measurements.get_next_measurement())
 
     estimated_state[k, :] = kalman_filter.estimated_state
     estimation_covariance[k, ...] = kalman_filter.estimation_covariance
 
 end_timestamp = motor_encoder.get_timestamp()
-ground_truth_data = ground_truth.get_data_until_timestamp(end_timestamp)
+ground_truth_data = ground_truth.get_measurements_until_timestamp(
+    end_timestamp)
 measurements = GPS()
-measurements_data = measurements.get_data_until_timestamp(end_timestamp)
-state_data = state.get_data_until_timestamp(end_timestamp)
+measurements_data = measurements.get_measurements_until_timestamp(
+    end_timestamp)
+state_data = state.get_measurements_until_timestamp(end_timestamp)
 
 ground_truth_x = [position[0] for position in ground_truth_data]
 ground_truth_y = [position[1] for position in ground_truth_data]

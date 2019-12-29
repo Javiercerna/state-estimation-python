@@ -31,26 +31,29 @@ gyrometer.synchronize_data(dead_reckoning)
 start_timestamp = dead_reckoning.get_timestamp()
 end_timestamp = start_timestamp + 100e6
 
-dead_reckoning_data = dead_reckoning.get_data_until_timestamp(end_timestamp)
-ground_truth_data = ground_truth.get_data_until_timestamp(end_timestamp)
-gps_data = gps.get_data_until_timestamp(end_timestamp)
-gyrometer_data = gyrometer.get_data_until_timestamp(end_timestamp)
+dead_reckoning_measurements = dead_reckoning.get_measurements_until_timestamp(
+    end_timestamp)
+ground_truth_measurements = ground_truth.get_measurements_until_timestamp(
+    end_timestamp)
+gps_measurements = gps.get_measurements_until_timestamp(end_timestamp)
+gyrometer_measurements = gyrometer.get_measurements_until_timestamp(
+    end_timestamp)
 
+dead_reckoning_x = [position[0] for position in dead_reckoning_measurements]
+dead_reckoning_y = [position[1] for position in dead_reckoning_measurements]
+dead_reckoning_theta = [position[2]
+                        for position in dead_reckoning_measurements]
 
-dead_reckoning_x = [position[0] for position in dead_reckoning_data]
-dead_reckoning_y = [position[1] for position in dead_reckoning_data]
-dead_reckoning_theta = [position[2] for position in dead_reckoning_data]
+ground_truth_x = [position[0] for position in ground_truth_measurements]
+ground_truth_y = [position[1] for position in ground_truth_measurements]
 
-ground_truth_x = [position[0] for position in ground_truth_data]
-ground_truth_y = [position[1] for position in ground_truth_data]
-
-gps_x = [position[0] for position in gps_data]
-gps_y = [position[1] for position in gps_data]
+gps_x = [position[0] for position in gps_measurements]
+gps_y = [position[1] for position in gps_measurements]
 
 gyrometer_angle = [0]
-for ind in range(1, len(gyrometer_data)):
-    gyro_measurement = gyrometer_data[ind]
-    angle = normalize_angle(gyrometer_angle[ind-1] + 0.02 * gyro_measurement)
+for ind in range(1, len(gyrometer_measurements)):
+    angular_speed = gyrometer_measurements[ind]
+    angle = normalize_angle(gyrometer_angle[ind - 1] + 0.02 * angular_speed)
     gyrometer_angle.append(angle)
 
 # X-Y plots

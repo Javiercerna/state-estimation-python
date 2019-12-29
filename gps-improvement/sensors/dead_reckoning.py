@@ -22,14 +22,15 @@ class DeadReckoning(Sensor):
         self.positions_x, self.positions_y = apply_coordinate_rotation(
             self.positions_x, self.positions_y, rotation_angle=1.15*math.pi/3)
 
-    def _append_data(self, data):
-        self._timestamps.append(float(data[DEAD_RECKONING_TIMESTAMP_COL]))
-        self.positions_x.append(float(data[DEAD_RECKONING_X_COL]))
-        self.positions_y.append(float(data[DEAD_RECKONING_Y_COL]))
-        angle = normalize_angle(float(data[DEAD_RECKONING_THETA_COL]))
+    def _append_measurement(self, measurement):
+        self._timestamps.append(
+            float(measurement[DEAD_RECKONING_TIMESTAMP_COL]))
+        self.positions_x.append(float(measurement[DEAD_RECKONING_X_COL]))
+        self.positions_y.append(float(measurement[DEAD_RECKONING_Y_COL]))
+        angle = normalize_angle(float(measurement[DEAD_RECKONING_THETA_COL]))
         self.positions_theta.append(angle)
 
-    def get_next_data(self):
+    def get_next_measurement(self):
         x = self.positions_x[self.timestamp_index]
         y = self.positions_y[self.timestamp_index]
         theta = self.positions_theta[self.timestamp_index]

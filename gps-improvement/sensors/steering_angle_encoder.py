@@ -11,11 +11,12 @@ class SteeringAngleEncoder(Sensor):
 
         super().__init__(filename=filename)
 
-    def _append_data(self, data):
-        self._timestamps.append(float(data[STEERING_ANGLE_TIMESTAMP_COL]))
-        self.steering_angles.append(float(data[STEERING_ANGLE_COL]))
+    def _append_measurement(self, measurement):
+        self._timestamps.append(
+            float(measurement[STEERING_ANGLE_TIMESTAMP_COL]))
+        self.steering_angles.append(float(measurement[STEERING_ANGLE_COL]))
 
-    def get_next_data(self):
+    def get_next_measurement(self):
         steering_angle = self.steering_angles[self.timestamp_index]
 
         self.timestamp_index += 1
