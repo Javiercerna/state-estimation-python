@@ -1,7 +1,7 @@
 """
 Based on the work of Marko Cotra.
 
-References: 
+References:
 * https://gist.github.com/cotramarko
 * https://towardsdatascience.com/wtf-is-sensor-fusion-part-2-the-good-old-kalman-filter-3642f321440
 
@@ -26,7 +26,8 @@ class ExtendedKalmanFilter():
         # Model parameters
         self.dt = dt
         self.wheelbase = wheelbase
-        self.Q = Q
+        self.Q_initial = Q
+        self.Q = self.Q_initial
         self.H = H
         self.R = R
 
@@ -34,7 +35,7 @@ class ExtendedKalmanFilter():
         self.estimated_state = x_0
         self.estimation_covariance = P_0
 
-    def predict(self, v_transl, steering_angle):
+    def predict(self, v_transl, steering_angle, iteration_step):
         """
         Executes the predict step of the Extended Kalman Filter.
         x_k = f(x_k-1, u_k)
@@ -53,6 +54,11 @@ class ExtendedKalmanFilter():
         self.estimated_state[2] = normalize_angle(self.estimated_state[2])
         self.estimation_covariance = G @ self.estimation_covariance @ G.transpose() + self.Q
 
+        if iteration_step > 5000 and (iteration_step % 5000) in range(5):
+            self._update_Q()
+        else:
+            self.Q = self.Q_initial
+
     def _compute_jacobian(self, v_transl):
         """
         Computes the jacobian (numerically) of the input signal "u", with
@@ -68,6 +74,15 @@ class ExtendedKalmanFilter():
             [0, 1, np.cos(self.estimated_state[2]) * v_transl * self.dt],
             [0, 0, 1]])
 
+    def _update_Q(self, sigma_xy=0.1, sigma_theta=0.7):
+        sigma_x = sigma_xy
+        sigma_y = sigma_xy
+        sigma_theta = sigma_theta
+
+        self.Q = np.array([[sigma_x ** 2, 0, 0],
+                           [0, sigma_y ** 2, 0],
+                           [0, 0, sigma_theta ** 2]])
+
     def update(self, measurement):
         """
         Executes the update step of the Extended Kalman Filter.
@@ -81,7 +96,7 @@ class ExtendedKalmanFilter():
         :param measurement: GPS measurement (gps_x, gps_y) [m]. Also known as
                             the variable "z" of the EKF.
         """
-        GPS_MIN_POSITION_DIFFERENCE_M = 10
+        GPS_MIN_POSITION_DIFFERENCE_M = 13
 
         S = self.H @ self.estimation_covariance @ self.H.transpose() + self.R
         V = measurement - self.H @ self.estimated_state
@@ -98,16 +113,16 @@ class ExtendedKalmanFilter():
 
 
 def create_model_parameters(
-        sigma_x=0.05, sigma_y=0.05, sigma_theta=0, lambda_gps=20):
+        sigma_x=0.02, sigma_y=0.02, sigma_theta=0, lambda_gps=20):
     """
     Helper function to create the model parameters (H, Q, R) of a model
-    that has three states [x, y, theta]' and measures two states [x, y]'. 
+    that has three states [x, y, theta]' and measures two states [x, y]'.
 
     :param sigma_x: standard deviation of x [m]
     :param sigma_y: standard deviation of y [m]
     :param sigma_theta: standard deviation of theta [rad]
     :param lamda: standard deviation of GPS measurements [m]
-    :return: H (measurement matrix), Q (process covariance matrix), 
+    :return: H (measurement matrix), Q (process covariance matrix),
              R (measurement covariance matrix)
     """
     # Motion model parameters

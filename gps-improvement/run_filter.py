@@ -24,7 +24,7 @@ motor_encoder = MotorEncoder()
 steering_angle_encoder = SteeringAngleEncoder()
 gyrometer = Gyrometer()
 
-simulation_time = 5000
+simulation_time = 5000 * 3
 dt = 0.02
 wheelbase = 1.21
 
@@ -53,7 +53,7 @@ gyrometer_angles = [x0[2]]
 for k in range(simulation_time):
     kalman_filter.predict(
         motor_encoder.get_next_measurement(),
-        steering_angle_encoder.get_next_measurement())
+        steering_angle_encoder.get_next_measurement(), iteration_step=k)
 
     gyrometer_angle = gyrometer_angles[k] + \
         dt * gyrometer.get_next_measurement()
