@@ -9,6 +9,9 @@ from sensors.steering_angle_encoder import SteeringAngleEncoder
 
 from utils import normalize_angle
 
+DATASET_BASIC_SECONDS = 100
+DATASET_FULL_SECONDS = 300
+
 ground_truth = GroundTruth()
 gps = GPS()
 dead_reckoning = DeadReckoning()
@@ -24,11 +27,12 @@ ground_truth.synchronize_data(gps)
 # Synchronize sensors at the same resolution as dead_reckoning
 motor_encoder.synchronize_data(dead_reckoning)
 steering_angle_encoder.synchronize_data(dead_reckoning)
-gyrometer.synchronize_data(dead_reckoning)
 
+# Define timestamps to analyze (in microseconds)
 start_timestamp = dead_reckoning.get_timestamp()
-end_timestamp = start_timestamp + 100e6
+end_timestamp = start_timestamp + DATASET_BASIC_SECONDS * 1e6
 
+# Format data for X-Y plots
 dead_reckoning_measurements = dead_reckoning.get_measurements_until_timestamp(
     end_timestamp)
 ground_truth_measurements = ground_truth.get_measurements_until_timestamp(
