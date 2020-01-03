@@ -5,7 +5,6 @@ import math
 from sensors.dead_reckoning import DeadReckoning
 from sensors.gps import GPS
 from sensors.ground_truth import GroundTruth
-from sensors.gyrometer import Gyrometer
 from sensors.motor_encoder import MotorEncoder
 from sensors.steering_angle_encoder import SteeringAngleEncoder
 
@@ -22,7 +21,6 @@ state = DeadReckoning()
 measurements = GPS()
 motor_encoder = MotorEncoder()
 steering_angle_encoder = SteeringAngleEncoder()
-gyrometer = Gyrometer()
 
 simulation_time = 5000 * 3
 dt = 0.02
@@ -35,7 +33,6 @@ ground_truth.synchronize_data(measurements)
 
 motor_encoder.synchronize_data(state)
 steering_angle_encoder.synchronize_data(state)
-gyrometer.synchronize_data(state)
 
 # Initial state
 x0 = np.array([state.positions_x[state.timestamp_index],
@@ -49,16 +46,10 @@ kalman_filter = ExtendedKalmanFilter(
 estimated_state = np.zeros((simulation_time, 3))
 estimation_covariance = np.zeros((simulation_time, 3, 3))
 
-gyrometer_angles = [x0[2]]
 for k in range(simulation_time):
     kalman_filter.predict(
         motor_encoder.get_next_measurement(),
         steering_angle_encoder.get_next_measurement(), iteration_step=k)
-
-    gyrometer_angle = gyrometer_angles[k] + \
-        dt * gyrometer.get_next_measurement()
-    gyrometer_angle = normalize_angle(gyrometer_angle)
-    gyrometer_angles.append(gyrometer_angle)
 
     if measurements.get_timestamp() <= motor_encoder.get_timestamp():
         kalman_filter.update(measurements.get_next_measurement())
@@ -90,24 +81,16 @@ error_odometry_x, error_odometry_y = calculate_error_between_ground_truth_and_od
     start_timestamp, end_timestamp)
 
 # X-Y plots
-plt.subplot(1, 2, 1)
 plt.plot(ground_truth_x, ground_truth_y, 'b')
 plt.plot(estimated_state[:, 0], estimated_state[:, 1], 'g')
 plt.plot(measurements_x, measurements_y, 'r')
 plt.plot(state_x, state_y, 'k')
-plt.title('X-Y plots')
+plt.title('X-Y plot')
 plt.xlabel('x [m]')
 plt.ylabel('y [m]')
-plt.legend(['ground_truth', 'estimated_state', 'GPS measurements', 'odometry'])
-
-# Angle plots
-plt.subplot(1, 2, 2)
-plt.plot(estimated_state[:, 2], 'g')
-plt.plot(gyrometer_angles, 'r')
-plt.title('Angle plots')
-plt.xlabel('timestamps (us)')
-plt.ylabel('theta [rad]')
-plt.legend(['estimated_state', 'gyrometer measurements'])
+plt.legend(['ground_truth', 'estimated_state',
+            'GPS measurements', 'Dead Reckoning'])
+plt.grid()
 
 # Error plots
 plt.figure()
@@ -115,14 +98,16 @@ plt.subplot(2, 1, 1)
 plt.plot(error_x, 'g')
 plt.plot(error_odometry_x, 'k')
 plt.title('Errors from ground truth - x axis')
-plt.legend(['estimate errors', 'odometry errors'])
-plt.xlabel('timestamps (us)')
+plt.legend(['estimate errors', 'Dead Reckoning errors'])
+plt.xlabel('samples')
 plt.ylabel('error [m]')
+plt.grid()
 plt.subplot(2, 1, 2)
 plt.plot(error_y, 'g')
 plt.plot(error_odometry_y, 'k')
 plt.title('Errors from ground truth - y axis')
-plt.legend(['estimate errors', 'odometry errors'])
-plt.xlabel('timestamps (us)')
+plt.legend(['estimate errors', 'Dead Reckoning errors'])
+plt.xlabel('samples')
 plt.ylabel('error [m]')
+plt.grid()
 plt.show()
