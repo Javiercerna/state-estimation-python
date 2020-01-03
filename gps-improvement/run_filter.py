@@ -13,6 +13,10 @@ from utils import apply_coordinate_rotation, normalize_angle
 from filter.statistics import calculate_error_between_ground_truth_and_estimate, \
     calculate_error_between_ground_truth_and_odometry
 
+# Custom filter parameters
+GPS_THRESHOLD_M = 13
+DRIFT_TIME_SECONDS = 100
+
 np.random.seed(0)
 H, Q, R = create_model_parameters()
 
@@ -42,7 +46,8 @@ P0 = 0 * np.eye(3)
 start_timestamp = motor_encoder.get_timestamp()
 
 kalman_filter = ExtendedKalmanFilter(
-    dt=dt, wheelbase=wheelbase, Q=Q, H=H, R=R, x_0=x0, P_0=P0)
+    dt=dt, wheelbase=wheelbase, Q=Q, H=H, R=R, x_0=x0, P_0=P0,
+    gps_threshold_m=GPS_THRESHOLD_M, drift_time_seconds=DRIFT_TIME_SECONDS)
 estimated_state = np.zeros((simulation_time, 3))
 estimation_covariance = np.zeros((simulation_time, 3, 3))
 
