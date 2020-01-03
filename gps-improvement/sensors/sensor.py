@@ -24,11 +24,9 @@ class Sensor(abc.ABC):
         storing the data according to the _append_measurement method, which 
         needs to be implemented for each subclass.
         """
-        with open(file=self.filename, mode='rb') as f:
-            for line in f.readlines():
-                measurement = [
-                    val.rstrip('\\n\'').lstrip('b\'')
-                    for val in str(line).split(' ')]
+        with open(file=self.filename, mode='r') as f:
+            for line in f.read().splitlines():
+                measurement = [float(value) for value in line.split(' ')]
                 self._append_measurement(measurement)
 
     @abc.abstractmethod
