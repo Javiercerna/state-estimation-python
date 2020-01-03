@@ -1,6 +1,6 @@
-# Extended Kalman Filter for GPS and Odometry fusion
+# Extended Kalman Filter for GPS and Dead Reckoning fusion
 
-EKF fusing GPS and odometry measurements. The results are compared to ground truth measurements obtained by a RTK GPS.
+EKF fusing GPS and dead reckoning measurements. The results are compared to ground truth measurements obtained by a RTK GPS.
 The dataset used comes from the following source:
 
 http://ipds.univ-bpclermont.fr/index.php
