@@ -1,5 +1,4 @@
 import numpy as np
-import scipy.stats
 
 import math
 
@@ -13,67 +12,59 @@ class ParticleFilter():
         self.R = R
 
         # Particles
-        self.particles = [self._create_particle(
-            x0) for _ in range(n_particles)]
-        self.particles_weights = [
-            1.0 / n_particles for _ in range(n_particles)]
+        self.n_particles = n_particles
+        self.particles = self._create_particles(x0, self.n_particles)
+        self.particles_weights = (1.0 / self.n_particles) * \
+            np.ones(self.n_particles)
 
     def predict(self):
-        for ind in range(len(self.particles)):
-            self.particles[ind] = self._propagate_particle(self.particles[ind])
+        for ind in range(self.n_particles):
+            self.particles[ind] = self.A @ self.particles[ind]
+
+        zero_mean = np.zeros(self.Q.shape[0])
+        self.particles += np.random.multivariate_normal(
+            mean=zero_mean, cov=self.Q, size=self.n_particles)
 
     def update_particle_weights(self, measurement):
-        for ind in range(len(self.particles)):
-            matrix_likelihood = scipy.stats.norm(
-                self.H @ self.particles[ind],
-                np.sqrt(self.R)).pdf(measurement)
-            matrix_likelihood = np.nan_to_num(matrix_likelihood)
-
-            self.particles_weights[ind] = sum(sum(matrix_likelihood))
+        for ind in range(self.n_particles):
+            likelihood = self._calculate_combined_likelihood(
+                self.particles[ind], measurement)
+            self.particles_weights[ind] = likelihood
             self.particles_weights[ind] += 1e-300  # Avoid round-off to 0
 
-        sum_weights = sum(self.particles_weights)
-        self.particles_weights = [1.0 * weight / sum_weights
-                                  for weight in self.particles_weights]
+        self.particles_weights /= sum(self.particles_weights)
 
     def resample(self):
-        cdf = self._calculate_cdf()
+        cdf = np.cumsum(self.particles_weights)
 
         # Multinomial resample
-        resampled_particles = [None] * len(self.particles)
-        for ind in range(len(self.particles)):
-            rand_num = np.random.rand()
-            filtered_indexes = [
-                index for index, value in enumerate(cdf)
-                if value >= rand_num]
-            sampled_index = min(filtered_indexes)
+        resampled_particles = np.copy(self.particles)
+        for ind in range(self.n_particles):
+            sampled_index = np.argmax(cdf >= np.random.rand())
             resampled_particles[ind] = self.particles[sampled_index]
 
         self.particles = resampled_particles
-        self.particles_weights = [
-            1.0 / len(self.particles_weights)
-            for _ in range(len(self.particles_weights))]
+        self.particles_weights = (1.0 / self.n_particles) * \
+            np.ones(self.n_particles)
 
     def calculate_estimate(self):
-        max_weight_ind = self.particles_weights.index(
-            max(self.particles_weights))
-        return self.particles[max_weight_ind]
+        return np.average(
+            self.particles, weights=self.particles_weights, axis=0)
 
-    def _create_particle(self, x0):
-        return np.random.multivariate_normal(mean=x0, cov=self.Q)
+    def _create_particles(self, x0, n_particles):
+        return np.random.multivariate_normal(
+            mean=x0, cov=self.Q, size=n_particles)
 
-    def _propagate_particle(self, particle):
-        zero_mean = np.zeros(self.Q.shape[0])
+    def _calculate_combined_likelihood(self, particle, measurement):
+        mu = self.H @ particle
 
-        particle = self.A @ particle + \
-            np.random.multivariate_normal(mean=zero_mean, cov=self.Q)
+        likelihood_x = self._calculate_likelihood(
+            x=measurement[0], mu=mu[0], sigma=math.sqrt(self.R[0][0]))
+        likelihood_y = self._calculate_likelihood(
+            x=measurement[1], mu=mu[1], sigma=math.sqrt(self.R[1][1]))
 
-        return particle
+        return likelihood_x + likelihood_y
 
-    def _calculate_cdf(self):
-        cdf = [0] * len(self.particles_weights)
-
-        for ind in range(len(cdf)):
-            cdf[ind] = sum(self.particles_weights[:ind+1])
-
-        return cdf
+    def _calculate_likelihood(self, x, mu, sigma):
+        return (1.0 / (sigma * math.sqrt(2 * math.pi))) * \
+            math.exp(-(x - mu) ** 2 / (2 * sigma ** 2))
