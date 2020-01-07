@@ -37,11 +37,8 @@ class ParticleFilter():
     def resample(self):
         cdf = np.cumsum(self.particles_weights)
 
-        # Multinomial resample
-        resampled_particles = np.copy(self.particles)
-        for ind in range(self.n_particles):
-            sampled_index = np.argmax(cdf >= np.random.rand())
-            resampled_particles[ind] = self.particles[sampled_index]
+        # Resample using either multinomial or systematic
+        resampled_particles = self._resample_systematic(cdf)
 
         self.particles = resampled_particles
         self.particles_weights = (1.0 / self.n_particles) * \
@@ -63,8 +60,25 @@ class ParticleFilter():
         likelihood_y = self._calculate_likelihood(
             x=measurement[1], mu=mu[1], sigma=math.sqrt(self.R[1][1]))
 
-        return likelihood_x + likelihood_y
+        return likelihood_x * likelihood_y
 
     def _calculate_likelihood(self, x, mu, sigma):
         return (1.0 / (sigma * math.sqrt(2 * math.pi))) * \
             math.exp(-(x - mu) ** 2 / (2 * sigma ** 2))
+
+    def _resample_multinomial(self, cdf):
+        resampled_particles = np.copy(self.particles)
+        for ind in range(self.n_particles):
+            sampled_index = np.argmax(cdf >= np.random.rand())
+            resampled_particles[ind] = self.particles[sampled_index]
+
+        return resampled_particles
+
+    def _resample_systematic(self, cdf):
+        resampled_particles = np.copy(self.particles)
+        r0 = (1.0 / self.n_particles) * np.random.rand()
+        for ind in range(self.n_particles):
+            sampled_index = np.argmax(cdf >= r0 + ind/self.n_particles)
+            resampled_particles[ind] = self.particles[sampled_index]
+
+        return resampled_particles

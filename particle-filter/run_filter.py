@@ -15,7 +15,7 @@ from models import simulate_system, create_model_parameters
 np.random.seed(0)
 (A, H, Q, R) = create_model_parameters()
 simulation_time = 20
-n_particles = 1000
+n_particles = 5000
 
 # Initial state
 x0 = np.array([0, 0.1, 0, 0.1])
